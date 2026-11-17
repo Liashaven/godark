@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#101612">
+  <title>GoDark Privacy Policy — Preview Draft</title>
+  <meta name="description" content="GoDark's draft privacy policy explains account data, optional telemetry, retention windows and information the messaging service does not collect.">
+  <meta name="robots" content="noindex,follow">
+  <meta name="keywords" content="GoDark privacy policy, data retention, offline messaging privacy, account data, diagnostics consent">
+  <meta property="og:type" content="article"><meta property="og:site_name" content="GoDark"><meta property="og:title" content="GoDark Privacy Policy — Preview Draft"><meta property="og:description" content="GoDark's planned account and opt-in telemetry data, retention, exclusions and preview status.">
+  <meta name="twitter:card" content="summary"><meta name="twitter:title" content="GoDark Privacy Policy — Preview Draft"><meta name="twitter:description" content="GoDark's planned account and opt-in telemetry data, retention, exclusions and preview status.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css">
+</head>
+<body><a class="skip-link" href="#main">Skip to content</a><div class="page-shell">
+  <header class="site-header"><a class="brand" href="/" aria-label="GoDark home"><img src="/assets/godark-mark.svg" width="42" height="42" alt=""><span>GoDark<span class="brand-period">.</span></span></a><nav class="primary-nav" aria-label="Main navigation"><a href="/#how-it-works">How it works</a><a href="/terms">Terms</a><a class="nav-account" href="/account">Account</a></nav></header>
+  <main id="main" class="subpage section-wrap">
+    <p class="eyebrow">PRIVACY · PREVIEW DRAFT · 16 NOVEMBER 2026</p>
+    <h1>Privacy, in plain language.</h1>
+    <p class="lede">This draft describes the planned GoDark account and optional diagnostics/analytics service. Offline group messaging is a separate feature and should not send its private content to the account service.</p>
+    <div class="policy-alert"><p><strong>Preview status:</strong> Sign-up is unavailable until a recurring retention-cleanup schedule is registered and the hosting provider's backup-retention window is verified. Do not enter real personal data or a password you use elsewhere in this preview. This page is a review draft, not a substitute for legal advice.</p></div>
+
+    <h2>Who operates GoDark?</h2>
+    <p>The project operator's legal name, address, governing jurisdiction and support contact have not been configured. Those details must be added and reviewed before a public launch. This draft does not invent them.</p>
+
+    <h2>Website cookies</h2>
+    <p>When website accounts are active, the site uses a necessary first-party session cookie and a short-lived anti-forgery token to keep sign-in requests secure. They are not advertising or cross-site tracking cookies. Account sign-up is disabled in this preview.</p>
+
+    <h2>What GoDark is designed to collect</h2>
+    <p>When account registration is activated, the service will collect the limited fields below. Optional data will be collected only after a separate, affirmative choice, with controls to change that choice later.</p>
+    <table class="policy-table"><thead><tr><th>Category</th><th>What</th><th>Purpose and retention</th></tr></thead><tbody>
+      <tr><td>Account</td><td>Opaque account ID, email address, chosen display name, salted password hash, account creation date and last-login date, accepted Terms/Privacy versions, optional-consent choices and change times, and session client type/creation/expiry metadata. The database stores one-way hashes of session and anti-forgery tokens, never their raw values.</td><td>Sign-in and account management. Kept while the account exists; after deletion, removed from active application records within 30 days. An account export omits password/token hashes but includes non-secret session metadata.</td></tr>
+      <tr><td>Optional diagnostics</td><td>App/device model, operating-system and app versions, a selected crash category and optional SHA-256 crash-signature hash, linked to the account ID. No raw stack trace, message text or conversation content.</td><td>Only after diagnostics opt-in, to diagnose technical problems; records deleted after 90 days.</td></tr>
+      <tr><td>Optional usage analytics</td><td>Feature names and event timestamps linked to the account ID, without message contents.</td><td>Only after analytics opt-in, to understand feature use; events deleted after 12 months.</td></tr>
+      <tr><td>Security logs</td><td>IP address and sign-in/security events; website requests may also include a browser user-agent and request timestamp, linked to the account ID when applicable.</td><td>Protect the account service and investigate misuse; retained for 30 days.</td></tr>
+    </tbody></table>
+
+    <h2>What the account service will not collect</h2>
+    <p>The account, analytics, diagnostics and security services are not intended to collect message contents, group codes or keys, contacts, safety-check-in contents, or precise location. Offline group messaging must continue to work without an account. Account identity is kept separate from group identities and message/relay traffic. Do not send message text, location or group data to support or analytics endpoints.</p>
+
+    <h2>Consent and your choices</h2>
+    <ul><li>Creating an account requires acknowledgement of this Privacy Policy and acceptance of the Terms.</li><li>Diagnostics and usage analytics are separate opt-ins, off by default.</li><li>You can turn either optional category off later. Turning it off stops future collection and deletes the previously collected optional events for that account.</li><li>You can request an export, sign out, or delete your account from account settings when the service is active.</li></ul>
+
+    <h2>Deletion and backups</h2>
+    <p>Account data is kept while the account exists. A deletion request removes the account from active application tables immediately where possible and no later than 30 days; account sessions and account-linked telemetry are removed. Local messages, group keys, other phones' copies and independent relay copies are not deleted by an account request. Backup copies are intended to expire within 90 days, but the managed database does not expose a backup-deletion control to this application. The provider's actual backup-retention period has not been verified; registration will remain unavailable until that limit is confirmed. Do not treat this draft as a promise that backups are already configured to meet the 90-day window.</p>
+
+    <h2>Hosting and security</h2>
+    <p>The project uses Manus-managed hosting and a managed database. Hosting providers may process operational request and infrastructure data as part of delivering the service. Project-level visitor analytics are disabled; the site does not intentionally add advertising trackers or third-party marketing analytics. This does not mean that every platform, network or CDN operational log is disabled. Passwords must be stored as salted hashes, not plaintext; native sessions must be held in protected platform storage.</p>
+
+    <h2>Children, changes and contact</h2>
+    <p>This preview is not designed for children under 13, and no public age policy has been reviewed. The policy must be updated if data practices change. Because the operator's support address and legal identity are not configured, there is not yet a verified contact channel for privacy requests; that is a launch blocker. Do not publish this page as a final legal notice until those details, the backup window, the cleanup schedule and applicable privacy obligations have been reviewed.</p>
+
+    <p><a href="/terms">Read the Terms and Conditions draft</a> · <a href="/account">Account service status</a></p>
+  </main>
+  <footer class="site-footer section-wrap"><a class="brand footer-brand" href="/"><img src="/assets/godark-mark.svg" width="32" height="32" alt=""><span>GoDark<span class="brand-period">.</span></span></a><p class="footer-note">Preview draft · Updated 16 November 2026</p><nav aria-label="Legal links"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/account">Account</a></nav><p class="footer-contact">Legal operator and support contact are not configured.</p></footer>
+</div></body></html>

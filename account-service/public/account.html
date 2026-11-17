@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#101612">
+  <meta name="robots" content="noindex,nofollow">
+  <title>GoDark Account — Preview Status</title>
+  <meta name="description" content="Manage a GoDark account, data export, account deletion and separate optional diagnostics and analytics consent when the account service is active.">
+  <meta name="keywords" content="GoDark account, account privacy, consent settings, data export, account deletion">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="GoDark"><meta property="og:title" content="GoDark Account — Preview Status"><meta property="og:description" content="Account service status and consent controls.">
+  <meta name="twitter:card" content="summary"><meta name="twitter:title" content="GoDark Account — Preview Status"><meta name="twitter:description" content="Account service status and consent controls.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css"><script type="module" src="/account.js"></script>
+</head>
+<body><a class="skip-link" href="#main">Skip to content</a><div class="page-shell">
+  <header class="site-header"><a class="brand" href="/" aria-label="GoDark home"><img src="/assets/godark-mark.svg" width="42" height="42" alt=""><span>GoDark<span class="brand-period">.</span></span></a><nav class="primary-nav" aria-label="Main navigation"><a href="/">Home</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav></header>
+  <main id="main" class="subpage section-wrap">
+    <p class="eyebrow">ACCOUNT SERVICE</p>
+    <h1>One account, only if you need it.</h1>
+    <p class="lede">Offline group messaging is designed to work without signing in. The account service is separate from message delivery. New registration and optional data collection are paused in this preview; existing account holders can still sign in to manage, export or delete their data.</p>
+    <div id="service-status" class="account-alert" role="status" aria-live="polite"><p>Checking whether account registration is enabled…</p></div>
+    <p class="muted"><strong>Preview safety:</strong> Do not create a new account here or reuse a password from another service. Existing account holders may sign in to use account controls. Password recovery and a verified support contact are not configured.</p>
+
+    <div class="account-grid">
+      <section class="form-panel" aria-labelledby="register-heading">
+        <h2 id="register-heading">Create account</h2>
+        <form id="register-form" autocomplete="on">
+          <fieldset id="register-fields" disabled>
+            <label class="field"><span>Email address</span><input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+            <label class="field"><span>Display name</span><input name="displayName" type="text" autocomplete="nickname" maxlength="80" required></label>
+            <label class="field"><span>Password (12 characters minimum)</span><input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+            <label class="check-row"><input name="termsAccepted" type="checkbox" required><span>I accept the <a href="/terms">Terms and Conditions</a>.</span></label>
+            <label class="check-row"><input name="privacyAcknowledged" type="checkbox" required><span>I have read the <a href="/privacy">Privacy Policy</a>.</span></label>
+            <label class="check-row"><input name="analyticsOptIn" type="checkbox"><span>Optional: share feature names and event times to help understand usage. No message contents. You can withdraw this choice later.</span></label>
+            <label class="check-row"><input name="diagnosticsOptIn" type="checkbox"><span>Optional: share app/device model, OS/app version and crash details to diagnose technical problems. You can withdraw this choice later.</span></label>
+            <div class="form-actions"><button class="button button-primary" type="submit">Create account</button></div>
+          </fieldset>
+          <p id="register-status" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="form-panel" aria-labelledby="login-heading">
+        <h2 id="login-heading">Sign in</h2>
+        <form id="login-form" autocomplete="on">
+          <fieldset id="login-fields" disabled>
+            <label class="field"><span>Email address</span><input name="email" type="email" autocomplete="username" maxlength="254" required></label>
+            <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required></label>
+            <div class="form-actions"><button class="button" type="submit">Sign in</button></div>
+          </fieldset>
+          <p id="login-status" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </div>
+
+    <section id="signed-in-panel" class="signed-in-panel" hidden aria-labelledby="account-heading">
+      <p class="eyebrow">SIGNED IN</p><h2 id="account-heading">Account settings</h2>
+      <p id="account-summary" class="muted"></p>
+      <div class="account-grid">
+        <section class="form-panel"><h3>Optional data choices</h3>
+          <label class="check-row"><input id="consent-analytics" type="checkbox"><span>Usage analytics: feature names and event timestamps, without message contents.</span></label>
+          <label class="check-row"><input id="consent-diagnostics" type="checkbox"><span>Diagnostics: app/device model, OS/app version and crash details.</span></label>
+          <button id="save-consent" class="button" type="button">Save choices</button><p id="consent-status" class="form-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="form-panel"><h3>Your account data</h3><p class="muted">Download the account and consent data held by the service.</p><button id="export-account" class="button" type="button">Export my data</button><button id="sign-out" class="button" type="button">Sign out</button></section>
+      </div>
+      <div class="danger-zone"><h3>Delete account</h3><p class="muted">This removes the account and account-linked telemetry from active service records. It does not delete local messages or copies on other devices.</p><label class="field"><span>Confirm with your password</span><input id="delete-password" type="password" autocomplete="current-password"></label><button id="delete-account" class="button danger-button" type="button">Delete account</button><p id="delete-status" class="form-status" role="status" aria-live="polite"></p></div>
+    </section>
+    <noscript><div class="policy-alert"><p>JavaScript is required for account service requests. The public GoDark information pages remain readable without it.</p></div></noscript>
+  </main>
+  <footer class="site-footer section-wrap"><a class="brand footer-brand" href="/"><img src="/assets/godark-mark.svg" width="32" height="32" alt=""><span>GoDark<span class="brand-period">.</span></span></a><p class="footer-note">Offline messaging remains separate from this account service.</p><nav aria-label="Legal links"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/">Home</a></nav><p class="footer-contact">No verified support contact is configured.</p></footer>
+</div></body></html>
