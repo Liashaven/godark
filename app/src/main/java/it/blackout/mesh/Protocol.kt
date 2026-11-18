@@ -530,14 +530,15 @@ object StatusShare {
 }
 
 /**
- * Group invites (spec/FORMAT.md, "Invites"): darkproof://join?name=<name>&code=<code>, or the same items after
- * https://darkproof.app/join# so the link also works for people who don't have the app yet.
+ * Group invites (spec/FORMAT.md, "Invites"): darkproof://join?name=<name>&code=<code>. Historical HTTP invite URLs
+ * using either darkproof.app or godark.app are accepted for import only; neither host is claimed to be an active site.
  */
 object Invite {
     const val MAX_GROUP_NAME = 24
     const val MIN_CODE_LENGTH = 8
     /** Generated codes: 16 of these, in four groups of four joined by "-". */
     const val SYMBOLS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    /** Historical web-form URL kept for compatibility tests and parsing; never shown as an active GoDark website. */
     const val WEB_PREFIX = "https://darkproof.app/join#"
     /** An invite names at most this many admins: the ones listed first. */
     const val MAX_PINS = 5
@@ -546,16 +547,12 @@ object Invite {
     /** The app link: opens GoDark where it is installed (all versions), does nothing elsewhere. */
     fun url(name: String, code: String, pins: String = "") = "darkproof://join?" + items(name, code, pins)
 
-    /**
-     * The web link, for QR codes and sharing: opens GoDark where it is installed (once darkproof.app serves the
-     * app-link files), else darkproof.app/join, which offers the app link and the downloads. The code stays in the
-     * #fragment, which browsers never send to a server.
-     */
+    /** Historical web-format serializer retained for stored/test vectors; app sharing uses the native URI instead. */
     fun webUrl(name: String, code: String, pins: String = "") = WEB_PREFIX + items(name, code, pins)
 
     private fun items(name: String, code: String, pins: String) = "name=${enc(name)}&code=${enc(code)}" + if (pins.isEmpty()) "" else "&admins=$pins"
     private val APP_LINK = Regex("^(?i:darkproof)://(?i:join)\\?(.*)$")
-    private val WEB_LINK = Regex("^(?i:https?)://(?i:(?:www\\.)?darkproof\\.app)/(?i:join)(?:/|\\.html)?(?:\\?[^#]*)?#(.*)$")
+    private val WEB_LINK = Regex("^(?i:https?)://(?i:(?:www\\.)?(?:darkproof|godark)\\.app)/(?i:join)(?:/|\\.html)?(?:\\?[^#]*)?#(.*)$")
     private val GENERATED = Regex("^[A-HJ-NP-Z2-9]{4}(-[A-HJ-NP-Z2-9]{4}){3}$")
     /** Ignored when reading a typed code: spaces, tabs, line breaks, "-", "_" and other dashes. */
     private const val SEPARATORS = "  \t\n\r-_‐‑‒–—―−"
@@ -571,7 +568,9 @@ object Invite {
     /** The items of an invite link, the first of each name counting; null if it isn't a link of either form. */
     private fun query(link: String): Map<String, String>? {
         // A shared message has words around the link.
-        val s = link.trim().split(Regex("\\s+")).firstOrNull { it.startsWith("darkproof://", true) || it.contains("darkproof.app/join", true) } ?: link.trim()
+        val s = link.trim().split(Regex("\\s+")).firstOrNull {
+            it.startsWith("darkproof://", true) || it.contains("darkproof.app/join", true) || it.contains("godark.app/join", true)
+        } ?: link.trim()
         val items = (APP_LINK.find(s) ?: WEB_LINK.find(s))?.groupValues?.get(1) ?: return null
         val q = LinkedHashMap<String, String>()
         for (kv in items.split("&")) {

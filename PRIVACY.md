@@ -31,7 +31,7 @@ GoDark messaging continues to work without an account. Messages can travel direc
 
 Nearby phones may store and forward packets. On-device message retention and deletion follow the app's local storage behavior and wire protocol, not the account service. Deleting an account does not recall or erase messages already delivered to other phones or independent relays. Treat the Everyone channel and anything shared through another app as public or visible to the selected third party.
 
-The app can also access third-party internet services when a user requests features such as AI model or map downloads. Those service operators may see ordinary network metadata under their own policies. AI conversations are processed on the device by the included on-device models.
+The app can also access third-party internet services for map downloads and, the first time the user opens Ask, to download the required on-device AI model (about 2.6 GB, Wi-Fi only). Those service operators may see ordinary network metadata under their own policies. The model download contains model files, not the user's questions; AI conversations are processed on the device and are not sent to the model provider.
 
 ## On-device information and permissions
 

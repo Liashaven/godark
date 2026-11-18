@@ -20,8 +20,11 @@
 - [x] Keep the native API base URL blank; no temporary Preview URL is embedded and the app sends no account/telemetry requests in this source snapshot.
 - [x] Keep legacy package/bundle IDs, wire/encryption identifiers, radio-discovery strings and invite schemes unchanged to preserve compatibility with existing installs and groups.
 - [ ] Before enabling account signup or telemetry, configure a permanent HTTPS API origin, publish the daily retention cleanup, verify the provider's backup-retention window (90 days or less), and complete the required security/legal review.
-- [ ] Build, sign and verify a production Android/iOS release; the current 55 MB APK is a debug/test build and is not a public release.
+- [ ] Create a production-signed Android release with an owner-controlled signing key. The current 55 MB v0.4 APK is a verified debug/test build, not a store release; no iOS build is in this delivery.
 - [x] Publish the app source/docs to the public GitHub repository `frnsy210-commits/godark` on `main`; commit `01862bb4941679fe6ef6c4e40e7bcdc120300553`. No APK is included.
 - [x] Account-service GitHub Actions passed. Android CI is currently blocked during `setup-android` (`sdkmanager` exited 1) before the app build runs; the local Android build and tests had passed previously.
-- [ ] Deploy the informational website to Cloudflare Pages as static files from `site/` only. The existing Direct Upload project `godark` is empty; creation of the approved Git-connected project `godark-site` is blocked by Cloudflare error `8000011` (internal Pages Git installation issue). Do not deploy the Node/MySQL backend, signup or telemetry.
-- [ ] After repairing Cloudflare's GitHub Pages installation (or completing a supported static upload), verify the live public pages, then set canonical metadata and sitemap to the confirmed Pages hostname.
+- [x] Keep the informational website as a downloadable static ZIP; the user chose not to use Cloudflare or another live hosting service. There is no live website URL.
+- [x] Add a direct Home shortcut to Places → Map and its existing offline-area download controls.
+- [x] Make the Android Ask assistant a fixed built-in feature; first use prepares the Gemma 4 E2B model over Wi-Fi only, keeps conversations on-device, and removes the in-app model picker/delete control.
+- [x] Run `testDebugUnitTest assembleDebug` successfully after the Android changes; verified the resulting APK signature and package metadata locally.
+- [ ] Do not attempt Cloudflare/GitHub Pages publishing unless the user changes the hosting choice; keep the Node/MySQL backend, signup and telemetry unpublished.

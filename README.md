@@ -3,8 +3,8 @@
 </h1>
 
 <p align="center">
-  <b>A messaging app for when there is no internet and no mobile network.</b><br>
-  Phones talk to each other directly and pass messages along. Android and iPhone, one format; the optional account service is separate and not enabled in this source snapshot.
+  <b>An Android messaging app for when there is no internet and no mobile network.</b><br>
+  Phones talk directly and pass messages along. This final build targets Android only; the older iPhone source is retained but is not part of this release.
 </p>
 
 <p align="center">
@@ -20,9 +20,9 @@
   <a href="#install-the-app">Install</a> · <a href="#how-it-works">How it works</a> · <a href="#features">Features</a> · <a href="#build">Build</a> · <a href="#ai-models">AI models</a> · <a href="#status">Status</a> · <a href="#known-limits">Known limits</a>
 </p>
 
-GoDark is a messaging app for when there is no internet and no mobile network. Phones talk to each other directly and pass messages along, so a message can reach someone who is out of range of the sender. While there is internet, messages may also travel through independent public relays. The optional GoDark account service source is included in `account-service/`, but its real HTTPS origin is blank and its readiness checks remain disabled in this source snapshot, so account and telemetry requests are not sent and accounts are unavailable. Messaging remains optional-account and works offline without signing in. An on-device AI helps with practical questions, and an optional LoRa radio extends the range to kilometres.
+GoDark is an Android messaging app for when there is no internet and no mobile network. Phones talk to each other directly and pass messages along, so a message can reach someone who is out of range of the sender. While there is internet, messages may also travel through independent public relays. The optional GoDark account service source is included in `account-service/`, but its real HTTPS origin is blank and its readiness checks remain disabled in this source snapshot, so account and telemetry requests are not sent and accounts are unavailable. Messaging works offline without signing in. Android includes a built-in on-device AI assistant: the first time you open Ask, GoDark prepares its Gemma 4 E2B model over Wi-Fi only (about 2.6 GB); the model stays on the phone and works offline after setup. The model is downloaded separately and is not bundled inside the APK. An optional LoRa radio extends the range to kilometres.
 
-There are two apps that work together: one for **Android** and one for **iPhone**. They use the same message format and encryption.
+The repository retains iPhone source using the same message format, but this final build request targets **Android only**; no iOS build is being prepared.
 
 ## Install the app
 
@@ -74,9 +74,7 @@ The group code only opens the door. Messages are sealed with a random key that c
   "I'm safe" or "I need help" (with battery and position) as plain text, for satellite messengers such as Garmin
   inReach, or for text messages once the network is back.
 
-- **AI that runs on the phone.** It needs no internet once its model is downloaded.
-  - **iPhone:** runs on llama.cpp. You pick the model in the app, and it keeps the conversation as context.
-  - **Android:** runs Gemma 4 on Google's LiteRT-LM, on the phone's GPU when it works, else its CPU. You pick the model in the app, and it keeps the conversation as context.
+- **Built-in Android AI that runs on the phone.** On first opening Ask, GoDark downloads Gemma 4 E2B over Wi-Fi only (about 2.6 GB), verifies the file size and SHA-256, and installs it for offline use. No model picker or delete switch is shown. The APK itself stays small; the model is downloaded separately. LiteRT-LM uses the phone's GPU when it works and falls back to CPU. The AI needs a phone with at least 4 GB of memory; the rest of GoDark remains usable while setup runs.
 - **Groups and people (iPhone and Android):**
   - "Create a group" makes a strong random code. Friends join by scanning the invite QR with their phone camera, or by an invite link sent over AirDrop, Quick Share or any app. Both apps emit the established `darkproof://join` URI so existing installations and invites remain compatible; the app label and interface are GoDark.
   - The People tab shows who is in your group, who is in range now, and when you last heard from everyone else.
@@ -95,7 +93,7 @@ The group code only opens the door. Messages are sealed with a random key that c
   - Alerts inside the app too, unread badges, and every saved group is read, so a family member's "I need help" reaches you while another group is open.
   - **Places:** share where there is water, shelter, charging or medical help, for everyone nearby.
   - **Small photos** (up to 14 KB) for your group, and **delivery status** ("Delivered to Anna").
-  - **Offline street maps:** save about 10 km around you while you have internet (OpenFreeMap, up to 50 MB).
+- **Offline street maps:** the Home shortcut opens the map and its download card directly. Save an area about 10 km around you while you have internet (OpenFreeMap, up to 50 MB), then view that saved area offline.
   - Alerts for new group messages, made on the phone.
 - **Internet relays.** With Wi-Fi or mobile data, every message also goes up to six free public Nostr relays, encrypted as always, and comes down on the phones it is for. These independent relays are not the optional account service: each phone signs with a new random key at every start, and accounts do not participate in mesh, message or relay handling.
   - Packets carry a 2-byte "mailbox" tag, so a phone asks only for its group's and the Everyone channel's packets.
@@ -175,16 +173,15 @@ The app downloads a model once, while internet is available, and checks its SHA-
 
 ### Android
 
-The same approach on Google's LiteRT-LM: the app downloads a model once, checks its size and SHA-256 before using it, offers only the models that fit the phone's memory, runs on the phone's GPU when it works (otherwise on its CPU), keeps the conversation, and shows how long answers take on that phone.
+Google's LiteRT-LM runs the single required Android assistant on the phone. On first opening Ask, the model is downloaded over Wi-Fi only and its size and SHA-256 are checked before use. It runs on the GPU when supported (otherwise CPU) and keeps the conversation locally. Model setup needs about 2.6 GB of free space plus temporary headroom, and a phone with at least 4 GB of memory. The AI model is a separate download, not embedded in the APK.
 
 | Model | Size | License | Offered on | On an Android emulator (4 CPU cores, 4 GB) |
 |---|---|---|---|---|
-| Gemma 4 E2B (recommended) | 2.6 GB | Apache 2.0 | phones with 4 GB or more | 2–7 s per answer, on the CPU |
-| Gemma 4 E4B | 3.7 GB | Apache 2.0 | phones with 8 GB or more | not tested yet |
+| Gemma 4 E2B (required) | 2.6 GB | Apache 2.0 | phones with 4 GB or more | 2–7 s per answer, on the CPU |
 
 Emulator times come from a Mac and are not phone times.
 
-Only the official instruct versions are offered. The assistant also gets the group's latest check-ins, battery levels and shared places with each question, so it can answer "who hasn't checked in?".
+The official instruct model is pinned to a reviewed revision and checked before use. The assistant also gets the group's latest check-ins, battery levels and shared places with each question, so it can answer "who hasn't checked in?". Group data can be stale; AI advice can be wrong and is not a substitute for trained emergency or medical help.
 
 Small models can be wrong. In a real medical emergency, use the AI's answers carefully.
 

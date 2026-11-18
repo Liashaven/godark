@@ -676,12 +676,12 @@ private const val CATCH_UP = "Catch me up on the last 6 hours"
 @Composable
 fun AskTab(g: SavedGroup, messages: List<Message>) {
     var draft by remember { mutableStateOf("") }
-    var choose by remember { mutableStateOf(false) }
     val m = LocalAi.model(LocalAi.selected)
     val ready = m != null && LocalAi.states[m.id] == LocalAi.State.Ready
     val turns = LocalAi.conversation
     val ctx = LocalContext.current
     val list = rememberLazyListState()
+    LaunchedEffect(LocalAi.requiredModel?.id) { LocalAi.ensureRequiredModel() }
     LaunchedEffect(turns.size, turns.lastOrNull()?.text?.length) { if (turns.isNotEmpty()) list.scrollToItem(turns.size - 1) }
     fun send(q: String) { if (q.isNotBlank() && !LocalAi.busy) { LocalAi.ask(q.trim(), aiSystem(g, messages, Locator.lastKnown(ctx))); draft = "" } }
     /** "Catch me up": the group's messages of the last 6 hours go with what the app knows; the chat shows the short question. */
@@ -697,27 +697,20 @@ fun AskTab(g: SavedGroup, messages: List<Message>) {
     val typing = WindowInsets.isImeVisible
     Column(Modifier.fillMaxSize().navigationBarsPadding().imePadding().padding(bottom = if (typing) 0.dp else 84.dp)) {
         Row(Modifier.padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 4.dp), verticalAlignment = Alignment.Top) {
-            Box(Modifier.weight(1f)) { ScreenTitle("Ask", "Works with no internet. It can be wrong: double-check anything important.") }
+            Box(Modifier.weight(1f)) { ScreenTitle("Ask", "Built-in on-device AI · works offline after setup. Double-check important advice.") }
             Spacer(Modifier.width(12.dp))
             Box {
-                RoundIcon(R.drawable.ic_more_horiz, desc = "More: new conversation, AI model") { menu = true }
+                RoundIcon(R.drawable.ic_more_horiz, desc = "More: new conversation") { menu = true }
                 DropdownMenu(menu, { menu = false }, containerColor = Theme.card) {
                     val canNew = ready && turns.isNotEmpty() && !LocalAi.busy
                     DropdownMenuItem(text = { Txt("New conversation", 16, color = if (canNew) Theme.text else Theme.faint) }, enabled = canNew,
                         onClick = { menu = false; LocalAi.newConversation() })
-                    DropdownMenuItem(text = { Txt("AI model: " + (m?.title ?: "none yet"), 16) }, onClick = { menu = false; choose = true })
                 }
             }
         }
         if (!ready) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Card {
-                    Txt("No AI model on this phone", 18, FontWeight.Bold)
-                    Txt("Download one while you still have internet. It stays on the phone and works offline afterwards.", 15, color = Theme.dim)
-                }
-                ModelList()
-            }
+                verticalArrangement = Arrangement.spacedBy(14.dp)) { RequiredAiSetup() }
         } else {
             LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = list, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -749,7 +742,6 @@ fun AskTab(g: SavedGroup, messages: List<Message>) {
             }
         }
     }
-    if (choose) SheetPage("AI model", { choose = false }) { ModelList() }
 }
 
 /** The little Markdown models write: **bold**, and "* " or "- " bullets. */
@@ -765,63 +757,42 @@ fun markdown(text: String): AnnotatedString = buildAnnotatedString {
     }
 }
 
-/** The models this phone can run, with download, use and delete. A big download on mobile data or with no internet asks first. */
 @Composable
-private fun ModelList() {
-    val ctx = LocalContext.current
-    var ask by remember { mutableStateOf<Pair<AiModel, String>?>(null) } // the model, and the network: "metered" or "none"
-    fun start(m: AiModel) {
-        LocalAi.spaceProblem(m)?.let { Toast.makeText(ctx, it, Toast.LENGTH_LONG).show(); return }
-        when (val net = LocalAi.network(ctx)) { "free" -> LocalAi.download(m); else -> ask = m to net }
-    }
-    Txt("Models run entirely on this phone. Bigger ones answer better but slower. This phone has ${LocalAi.memoryGB} GB of memory: only models that fit are shown.",
-        14, color = Theme.dim)
-    if (LocalAi.catalog.isEmpty()) Txt("No model fits a phone with less than 4 GB of memory.", 15, FontWeight.SemiBold, Theme.help)
-    LocalAi.catalog.forEach { m ->
-        val st = LocalAi.states[m.id] ?: LocalAi.State.Missing
-        val gb = "%.1f".format(m.bytes / 1e9)
+private fun RequiredAiSetup() {
+    val model = LocalAi.requiredModel
+    if (model == null) {
         Card {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Txt(m.title, 18, FontWeight.Bold, modifier = Modifier.weight(1f))
-                if (LocalAi.selected == m.id && st == LocalAi.State.Ready) Chip("In use", Theme.safe)
-            }
-            Txt(m.detail, 15, color = Theme.dim)
-            Txt("$gb GB · ${m.license}" + (LocalAi.typicalSeconds(m)?.let { " · about $it s per answer here" } ?: ""), 14, color = Theme.dim)
-            when (st) {
-                LocalAi.State.Missing -> {
-                    PrimaryButton("Download $gb GB", icon = R.drawable.ic_download) { start(m) }
-                    Txt("Big: use Wi-Fi if you can. It takes a while; you can keep using GoDark.", 14, color = Theme.dim)
-                }
+            Txt("Built-in offline AI", 19, FontWeight.Bold)
+            Txt("The required AI model is not available in this build.", 15, color = Theme.help)
+        }
+        return
+    }
+    val state = LocalAi.states[model.id] ?: LocalAi.State.Missing
+    Card {
+        Txt("Built-in offline AI", 19, FontWeight.Bold)
+        if (LocalAi.memoryGB < model.minMemoryGB) {
+            Txt("This phone reports ${LocalAi.memoryGB} GB of memory. The built-in AI needs at least ${model.minMemoryGB} GB; messaging, maps and the rest of GoDark still work.",
+                15, color = Theme.help)
+        } else {
+            Txt("GoDark prepares its required ${model.title} model once, over Wi-Fi only (about ${"%.1f".format(model.bytes / 1e9)} GB). It stays on this phone and works offline after setup. You can keep using GoDark while it downloads.",
+                15, color = Theme.dim)
+            Spacer(Modifier.height(4.dp))
+            when (state) {
                 is LocalAi.State.Downloading -> {
-                    Txt(st.waiting ?: "Downloading ${(st.progress * 100).toInt()}%. Keep the internet on.", 15, FontWeight.SemiBold, if (st.waiting != null) Theme.dim else Theme.text)
+                    Txt(state.waiting ?: "Downloading ${(state.progress * 100).toInt()}%…", 15, FontWeight.SemiBold,
+                        if (state.waiting != null) Theme.dim else Theme.text)
                     Box(Modifier.fillMaxWidth().height(8.dp).clip(CircleShape).background(Theme.tile)) {
-                        Box(Modifier.fillMaxWidth(st.progress.coerceIn(0.02f, 1f)).fillMaxHeight().background(Theme.text, CircleShape))
+                        Box(Modifier.fillMaxWidth(state.progress.coerceIn(0.02f, 1f)).fillMaxHeight().background(Theme.text, CircleShape))
                     }
-                    GhostButton("Cancel") { LocalAi.cancel(m) }
                 }
-                LocalAi.State.Verifying -> Txt("Checking the download…", 15, FontWeight.SemiBold, Theme.dim)
-                LocalAi.State.Ready -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    if (LocalAi.selected != m.id) GhostButton("Use this model") { LocalAi.select(m) }
-                    GhostButton("Delete", enabled = !LocalAi.busy) { LocalAi.delete(m) }
-                }
+                LocalAi.State.Verifying -> Txt("Checking the downloaded model…", 15, FontWeight.SemiBold, Theme.dim)
                 is LocalAi.State.Failed -> {
-                    Txt(st.why, 15, color = Theme.help)
-                    GhostButton("Try again") { start(m) }
+                    Txt(state.why, 15, color = Theme.help)
+                    PrimaryButton("Retry AI setup", icon = R.drawable.ic_download) { LocalAi.download(model, mobileData = false) }
                 }
+                LocalAi.State.Missing -> Txt("Starting the Wi-Fi download…", 15, FontWeight.SemiBold, Theme.dim)
+                LocalAi.State.Ready -> Txt("The AI model is ready. Reopen Ask to continue.", 15, FontWeight.SemiBold, Theme.safe)
             }
         }
-    }
-    ask?.let { (m, net) ->
-        androidx.compose.material3.AlertDialog({ ask = null }, containerColor = Theme.card,
-            title = { Txt(if (net == "none") "No internet right now" else "You're on mobile data", 20, FontWeight.Bold) },
-            text = { Txt(if (net == "none") "GoDark can download the ${"%.1f".format(m.bytes / 1e9)} GB model by itself as soon as there is Wi-Fi."
-                         else "This download is ${"%.1f".format(m.bytes / 1e9)} GB. On mobile data that can cost a lot or use up your plan.", 15, color = Theme.dim) },
-            confirmButton = {
-                Row {
-                    if (net != "none") androidx.compose.material3.TextButton({ ask = null; LocalAi.download(m, mobileData = true) }) { Txt("Use mobile data", 16, FontWeight.SemiBold, Theme.dim) }
-                    androidx.compose.material3.TextButton({ ask = null; LocalAi.download(m, mobileData = false) }) { Txt("Wait for Wi-Fi", 16, FontWeight.Bold) }
-                }
-            },
-            dismissButton = { androidx.compose.material3.TextButton({ ask = null }) { Txt("Cancel", 16, FontWeight.SemiBold, Theme.dim) } })
     }
 }

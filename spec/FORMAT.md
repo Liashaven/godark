@@ -474,15 +474,15 @@ darkproof://join?name=<group name>&code=<group code>&admins=<pins>
 
 ### Legacy web invite links
 
-Older invites may contain a URL such as `https://darkproof.app/join#name=<group name>&code=<group code>&admins=<pins>`.
-This is a legacy input format only: GoDark does not control that domain, the current GoDark site does not host a join
+Older invites may contain URLs using `darkproof.app` or `godark.app`, such as `https://darkproof.app/join#name=<group name>&code=<group code>&admins=<pins>`.
+These are legacy input formats only: GoDark does not control either domain, the current GoDark site does not host a join
 page, and the app's sharing UI does not generate these web URLs. The app continues to parse an old link if a user pastes
 or shares one into GoDark; the code remains in the URL fragment and is not sent to a web server by a normal browser.
 
 - After `#` come the same encoded items as in the `darkproof://` link. Every byte that is not a letter, digit, `-`,
   `.`, `_` or `~` is written `%XX` (so a space is `%20` and `+` is `%2B`); see `kind: invite` in `test-vectors.txt`.
-- The legacy parser accepts `http://`, `www.darkproof.app`, case variations, `/join/` and `/join.html`, and a query
-  before the fragment. A code in the query instead of the fragment is not an invite.
+- The legacy parser accepts `http://`, optional `www.`, either historical host, case variations, `/join/` and
+  `/join.html`, and a query before the fragment. A code in the query instead of the fragment is not an invite.
 - When `name` or `code` appears twice, the first one counts.
 - The app-generated `darkproof://join` URI is retained for compatibility with existing GoDark installations. Package,
   storage and wire identifiers are not changed in this release.

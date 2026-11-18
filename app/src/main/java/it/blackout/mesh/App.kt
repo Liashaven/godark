@@ -491,6 +491,7 @@ private fun HomeTab(s: AppState, a: MainActivity, g: SavedGroup, messages: List<
             ActionTile("Invite", R.drawable.ic_qr_code_2, Theme.text, false, Modifier.weight(1f)) { open(Sheet.Invite) }
             ActionTile("Connect", R.drawable.ic_settings_input_antenna, Theme.text, false, Modifier.weight(1f)) { open(Sheet.Radio) }
         }
+        SecondaryButton("Map & offline download", icon = R.drawable.ic_map) { s.placesMap = true; s.tab = 2 }
         mine?.let { m -> Txt("Your last check-in: ${if (CheckIn.of(m.text) == CheckIn.HELP) "need help" else "safe"}, ${ago(m.ts)}.", 15, color = Theme.dim) }
         hours?.let { h -> batteryPercent(a)?.let { p -> Txt("Battery $p% · about $h h left at this rate.", 15, color = if (h <= 3) Theme.help else Theme.dim) } }
         ReadyCard(s, a, people.isNotEmpty())

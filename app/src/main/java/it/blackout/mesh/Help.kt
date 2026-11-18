@@ -327,15 +327,17 @@ private class Step(val title: String, val sub: String, val done: Boolean, @Drawa
 fun ReadyCard(s: AppState, a: MainActivity, hasPeople: Boolean) {
     s.tick; Perms.version
     if (Ready.done(a, Ready.HIDDEN)) return
-    val ai = LocalAi.catalog.firstOrNull()
+    val ai = LocalAi.requiredModel
+    val aiReady = LocalAi.model(LocalAi.selected)?.let { LocalAi.states[it.id] == LocalAi.State.Ready } == true
     val steps = listOfNotNull(
         Step("Invite your people", "So you can reach each other", hasPeople || Ready.done(a, Ready.INVITE), R.drawable.ic_qr_code_2) { s.sheet = Sheet.Invite },
         Step("Save the map of your area", "It then works with no internet", OfflineMap.state is OfflineMap.State.Ready, R.drawable.ic_map) { s.placesMap = true; s.tab = 2 },
         Step("Add the “I'm safe” tile", "One tap from the top of the screen", Ready.done(a, Ready.TILE), R.drawable.ic_verified_user) { a.addTile() },
         Step("Try a practice run", "Ask for help without sending anything", Ready.done(a, Ready.PRACTICE), R.drawable.ic_sos) { s.sheet = Sheet.Practice },
         Step("Turn on notifications", "Know when someone needs help", !s.notificationsOff, R.drawable.ic_notifications) { a.askNotifications() },
-        ai?.let { m -> Step("Download the offline AI", "Optional. Big: ${"%.1f".format(m.bytes / 1e9)} GB, use Wi-Fi.",
-            LocalAi.states.values.any { it == LocalAi.State.Ready }, R.drawable.ic_auto_awesome) { s.tab = 4 } },
+        ai?.let { m -> Step("Set up the built-in AI", if (LocalAi.memoryGB < m.minMemoryGB) "Needs at least ${m.minMemoryGB} GB of phone memory"
+            else "Required · about ${"%.1f".format(m.bytes / 1e9)} GB over Wi-Fi",
+            aiReady, R.drawable.ic_auto_awesome) { s.tab = 4 } },
     )
     val done = steps.count { it.done }
     if (done == steps.size) return
