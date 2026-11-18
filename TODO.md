@@ -22,7 +22,7 @@
 - [ ] Before enabling account signup or telemetry, configure a permanent HTTPS API origin, publish the daily retention cleanup, verify the provider's backup-retention window (90 days or less), and complete the required security/legal review.
 - [ ] Create a production-signed Android release with an owner-controlled signing key. The current 55 MB v0.4 APK is a verified debug/test build, not a store release; no iOS build is in this delivery.
 - [x] Publish the app source/docs to the public GitHub repository `frnsy210-commits/godark` on `main`; commit `01862bb4941679fe6ef6c4e40e7bcdc120300553`. No APK is included.
-- [x] Account-service GitHub Actions passed. Android CI is currently blocked during `setup-android` (`sdkmanager` exited 1) before the app build runs; the local Android build and tests had passed previously.
+- [x] Account-service GitHub Actions passed. Android CI passed on commit `274bd54710925cad7b3cfd048a00fe9e4d2c3fe0` (run `44411996078`); local Android tests and `assembleDebug` also pass.
 - [x] Keep the informational website as a downloadable static ZIP; the user chose not to use Cloudflare or another live hosting service. There is no live website URL.
 - [x] Add a direct Home shortcut to Places → Map and its existing offline-area download controls.
 - [x] Make the Android Ask assistant a fixed built-in feature; first use prepares the Gemma 4 E2B model over Wi-Fi only, keeps conversations on-device, and removes the in-app model picker/delete control.
