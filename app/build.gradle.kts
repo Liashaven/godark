@@ -1,11 +1,53 @@
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.android"); id("org.jetbrains.kotlin.plugin.compose") }
+
+// Production signing material is supplied locally or by a secret manager, never committed.
+val releaseKeystorePath = System.getenv("GODARK_KEYSTORE")
+val releaseKeyAlias = System.getenv("GODARK_KEY_ALIAS")
+val releaseStorePassword = System.getenv("GODARK_STORE_PASSWORD")
+val releaseKeyPassword = System.getenv("GODARK_KEY_PASSWORD")
+val releaseSigningInputs = listOf(releaseKeystorePath, releaseKeyAlias, releaseStorePassword, releaseKeyPassword)
+val releaseSigningConfigured = releaseSigningInputs.all { !it.isNullOrBlank() }
+if (releaseSigningInputs.any { !it.isNullOrBlank() } && !releaseSigningConfigured) {
+    throw GradleException("Set all four GODARK signing environment variables together; do not commit signing credentials.")
+}
+if (releaseSigningConfigured && !file(releaseKeystorePath!!).isFile) {
+    throw GradleException("The file configured by GODARK_KEYSTORE does not exist.")
+}
+
+tasks.configureEach {
+    if (name == "assembleRelease" || name == "bundleRelease" ||
+        (name.startsWith("package") && name.endsWith("Release"))) {
+        doFirst {
+            if (!releaseSigningConfigured) {
+                throw GradleException("A signed release requires GODARK_KEYSTORE, GODARK_KEY_ALIAS, GODARK_STORE_PASSWORD and GODARK_KEY_PASSWORD.")
+            }
+        }
+    }
+}
+
 android {
     namespace = "it.blackout.mesh"
     compileSdk = 35
     defaultConfig {
         applicationId = "it.darkproof.mesh"
-        minSdk = 26; targetSdk = 34; versionCode = 4; versionName = "0.4"
+        minSdk = 26; targetSdk = 34; versionCode = 5; versionName = "0.5"
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
+    }
+    signingConfigs {
+        create("release") {
+            if (releaseSigningConfigured) {
+                storeFile = file(releaseKeystorePath!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            isDebuggable = false
+            if (releaseSigningConfigured) signingConfig = signingConfigs.getByName("release")
+        }
     }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     buildFeatures { compose = true }

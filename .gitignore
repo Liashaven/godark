@@ -28,3 +28,9 @@ ios/Vendor/llama.framework/
 .env.*
 !.env.example
 **/node_modules/
+
+# Android production signing material (never commit)
+*.jks
+*.keystore
+*.idsig
+keystore.properties

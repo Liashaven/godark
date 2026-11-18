@@ -28,9 +28,9 @@ The repository retains iPhone source using the same message format, but this fin
 
 ### Android
 
-There is no public GoDark APK or Google Play listing available from this repository yet. Do not install a superseded or unverified build as the GoDark release. Account and telemetry requests are also unavailable in this source snapshot because the public HTTPS API origin has not been configured.
+There is no Google Play listing or public GitHub Release from this repository. The Android 0.5 direct-install APK is signed only when an owner-controlled release key is supplied to the build. This is not a Play Store submission. Account and telemetry requests remain unavailable because the public HTTPS API origin is blank; the Terms and Privacy pages are drafts and still need legal review before public launch.
 
-For a developer build, follow the [Android build instructions](#android). A locally built debug APK is for testing, not a public release package. Android requires version 8.0 (API 26) or newer and Google Play Services.
+For a debug test build or signed release, follow the [Android build instructions](#android). Android requires version 8.0 (API 26) or newer and Google Play Services.
 
 ### iPhone
 
@@ -129,13 +129,24 @@ The group code only opens the door. Messages are sealed with a random key that c
 
 1. You need Android Studio, or the Android SDK with platform 35 and JDK 17 or newer. The build uses Android Gradle Plugin 8.13.2: tor-android's code is built for Java 24, which older plugins can't read.
 2. Create `local.properties` containing `sdk.dir=<path to your Android SDK>`.
-3. Build:
+3. For a debug/test build:
    ```bash
    ./gradlew assembleDebug
    ```
-4. Install. You need a phone with Google Play Services; uninstall older GoDark versions first.
+4. For a signed Android 0.5 release, provide these environment variables from a secure secret manager or protected local environment, then run the tests and release build:
    ```bash
-   adb install -r app/build/outputs/apk/debug/app-debug.apk
+   export GODARK_KEYSTORE=/secure/path/release-key.jks
+   export GODARK_KEY_ALIAS=your-release-alias
+   read -rsp 'Keystore password: ' GODARK_STORE_PASSWORD; echo
+   read -rsp 'Private-key password: ' GODARK_KEY_PASSWORD; echo
+   export GODARK_STORE_PASSWORD GODARK_KEY_PASSWORD
+   ./gradlew testDebugUnitTest assembleRelease --no-daemon
+   unset GODARK_STORE_PASSWORD GODARK_KEY_PASSWORD
+   ```
+   Keep the keystore and passwords out of Git and source ZIPs. The release build fails unless all four signing variables are set. Back up the key: Android will reject updates signed with a different certificate.
+5. Install. You need a phone with Google Play Services. For a debug/test build, install `app/build/outputs/apk/debug/app-debug.apk`; for a signed release, install `app/build/outputs/apk/release/app-release.apk` and keep the same signing key for updates.
+   ```bash
+   adb install -r app/build/outputs/apk/release/app-release.apk
    ```
 
 ### iPhone
